@@ -1,1 +1,17 @@
-<p>header works!</p>
+<header class="header">
+  <div class="header-brand">
+    <a routerLink="/" class="header-logo">
+      <h1>Recipe App</h1>
+    </a>
+  </div>
+  <nav class="header-nav">
+    <ul class="header-menu">
+      <li class="header-item">
+        <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="header-link">Home</a>
+      </li>
+      <li class="header-item">
+        <a routerLink="/favourites" routerLinkActive="active" class="header-link">Favourite</a>
+      </li>
+    </ul>
+  </nav>
+</header>
