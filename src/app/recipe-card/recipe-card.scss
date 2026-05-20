@@ -1,0 +1,323 @@
+@use 'sass:string';
+@use 'sass:list';
+@use 'sass:map';
+@use 'sass:selector';
+@use 'sass:color';
+
+// ─── Design Tokens ───────────────────────────────────────────────────────────
+$card-radius: 16px;
+$image-height: 200px;
+$transition-base: 0.25s ease;
+
+// Palette
+$clr-bg: #fffdf9;
+$clr-surface: #ffffff;
+$clr-border: #f0ebe2;
+$clr-text-primary: #1a1612;
+$clr-text-muted: #9e8f82;
+$clr-accent: #e8522a; // warm terracotta
+$clr-accent-soft: #fdf0eb;
+$clr-star-on: #f4a824;
+$clr-star-off: #e8e0d6;
+$clr-heart-on: #e8522a;
+$clr-heart-off: rgba(255, 255, 255, 0.85);
+
+// Category colours map (add more as needed)
+$category-colors: (
+  'Breakfast': (
+    #fff7e6,
+    #d97706,
+  ),
+  'Lunch': (
+    #f0fdf4,
+    #16a34a,
+  ),
+  'Dinner': (
+    #eff6ff,
+    #2563eb,
+  ),
+  'Dessert': (
+    #fdf4ff,
+    #9333ea,
+  ),
+  'Snack': (
+    #fff1f2,
+    #e11d48,
+  ),
+  'Beverage': (
+    #ecfeff,
+    #0891b2,
+  ),
+);
+
+// ─── Card Shell ──────────────────────────────────────────────────────────────
+.recipe-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 300px;
+  background: $clr-surface;
+  border: 1.5px solid $clr-border;
+  border-radius: $card-radius;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transition:
+    transform $transition-base,
+    box-shadow $transition-base;
+  font-family: 'Georgia', 'Cambria', serif; // warm editorial feel
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+  }
+
+  &.is-favourite {
+    border-color: rgba($clr-accent, 0.4);
+    box-shadow:
+      0 0 0 3px rgba($clr-accent, 0.08),
+      0 2px 8px rgba(0, 0, 0, 0.06);
+  }
+}
+
+// ─── Category Badge ───────────────────────────────────────────────────────────
+.category-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 10;
+
+  .category-label {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-family: 'Trebuchet MS', sans-serif;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    background: rgba(255, 255, 255, 0.92);
+    color: $clr-text-primary;
+    backdrop-filter: blur(4px);
+    border: 1px solid $clr-border;
+  }
+
+  // Tint badge per category
+  @each $cat, $pair in $category-colors {
+    $bg: list.nth($pair, 1);
+    $fg: list.nth($pair, 2);
+
+    &[data-category='#{$cat}'] .category-label,
+    &.cat-#{string.to-lower-case($cat)} .category-label {
+      background: $bg;
+      color: $fg;
+      border-color: color.change($fg, $alpha: 0.25);
+    }
+  }
+}
+
+// ─── Image ────────────────────────────────────────────────────────────────────
+.card-image-wrapper {
+  position: relative;
+  height: $image-height;
+  overflow: hidden;
+  background: #f5f0ea;
+  flex-shrink: 0;
+}
+
+.card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.4s ease;
+
+  .recipe-card:hover & {
+    transform: scale(1.04);
+  }
+}
+
+.image-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f9f3ec 0%, #f0e9df 100%);
+
+  .placeholder-icon {
+    font-size: 3rem;
+    opacity: 0.45;
+  }
+}
+
+// ─── Favourite Button ─────────────────────────────────────────────────────────
+.favourite-btn {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: $clr-heart-off;
+  backdrop-filter: blur(6px);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    background $transition-base,
+    transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+
+  .heart-icon {
+    width: 17px;
+    height: 17px;
+    fill: $clr-text-muted;
+    stroke: none;
+    transition:
+      fill $transition-base,
+      transform 0.18s ease;
+  }
+
+  &.active {
+    background: $clr-accent;
+
+    .heart-icon {
+      fill: #fff;
+    }
+  }
+
+  &:hover {
+    transform: scale(1.15);
+
+    .heart-icon {
+      fill: $clr-accent;
+    }
+  }
+
+  &.active:hover .heart-icon {
+    fill: #fff;
+  }
+
+  &:active {
+    transform: scale(0.92);
+  }
+}
+
+// ─── Card Body ────────────────────────────────────────────────────────────────
+.card-body {
+  padding: 14px 16px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+// ─── Rating ───────────────────────────────────────────────────────────────────
+.rating-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.stars {
+  display: flex;
+  gap: 2px;
+}
+
+.star {
+  font-size: 0.9rem;
+  color: $clr-star-off;
+  transition: color $transition-base;
+  line-height: 1;
+
+  &.filled {
+    color: $clr-star-on;
+  }
+}
+
+.rating-value {
+  font-family: 'Trebuchet MS', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: $clr-text-muted;
+}
+
+// ─── Name ─────────────────────────────────────────────────────────────────────
+.recipe-name {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: $clr-text-primary;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+
+// ─── Description ─────────────────────────────────────────────────────────────
+.recipe-description {
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.55;
+  color: $clr-text-muted;
+  font-family: 'Trebuchet MS', sans-serif;
+}
+
+// ─── Meta Row ─────────────────────────────────────────────────────────────────
+.meta-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 6px 0;
+  border-top: 1px solid $clr-border;
+  border-bottom: 1px solid $clr-border;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: $clr-text-muted;
+}
+
+.meta-icon {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+  color: $clr-accent;
+}
+
+.meta-text {
+  font-family: 'Trebuchet MS', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: $clr-text-primary;
+  white-space: nowrap;
+}
+
+// ─── Ingredients Chips ────────────────────────────────────────────────────────
+.ingredients-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 2px;
+}
+
+.ingredient-chip {
+  display: inline-block;
+  padding: 3px 9px;
+  border-radius: 20px;
+  background: $clr-accent-soft;
+  color: $clr-accent;
+  font-family: 'Trebuchet MS', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 600;
+  border: 1px solid rgba($clr-accent, 0.18);
+  white-space: nowrap;
+
+  &.more {
+    background: $clr-border;
+    color: $clr-text-muted;
+    border-color: transparent;
+  }
+}

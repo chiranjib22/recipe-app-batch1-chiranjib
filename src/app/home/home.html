@@ -1,1 +1,41 @@
-<p>home works!</p>
+<main class="home-container">
+  <header class="home-header">
+    <h1 class="page-title">Discover Recipes</h1>
+    <p class="page-subtitle">Find your next favorite meal from our curated collection.</p>
+  </header>
+
+  <!-- Category filtration -->
+  <div class="category-filter">
+    <button
+      class="category-btn"
+      [class.active]="selectedCategory === ''"
+      (click)="selectedCategory = ''"
+    >
+      All
+    </button>
+    @for (category of categories; track category) {
+      <button
+        class="category-btn"
+        [class.active]="selectedCategory === category"
+        (click)="selectedCategory = category"
+      >
+        {{ category }}
+      </button>
+    }
+  </div>
+  <section class="recipe-grid">
+    @for (recipe of filterByCategory(); track recipe.id) {
+      <div class="recipe-grid-item">
+        <recipe-app-recipe-card
+          [recipe]="recipe"
+          (AddToFavourite)="AddToFavourite($event)"
+        ></recipe-app-recipe-card>
+      </div>
+    } @empty {
+      <div class="empty-state">
+        <span class="empty-icon">🍽️</span>
+        <p>No recipes found.</p>
+      </div>
+    }
+  </section>
+</main>
